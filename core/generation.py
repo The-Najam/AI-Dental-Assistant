@@ -1,7 +1,7 @@
 from config.setting import setting
 from core.retrieval import retrieve_chunks
 from config.logger import logger
-from model.schemas import intent_detection
+from model.schemas import Chat_Response
 import google.generativeai as genai
 
 
@@ -132,14 +132,14 @@ def generate_response(model, query, context, history):
         prompt,
         generation_config=genai.types.GenerationConfig(
             response_mime_type="application/json",
-            response_schema=intent_detection,
+            response_schema=Chat_Response,
         )
         )
 
         if not isinstance(response.text,str) or not response.text.strip():
             raise TypeError("Gemini Returns Empty Output or Invalid Type")
         
-        result = intent_detection.model_validate_json(response.text)
+        result = Chat_Response.model_validate_json(response.text)
         logger.info("Response generated successfully")
         return result
     except Exception as e:
