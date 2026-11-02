@@ -1,7 +1,9 @@
-from src.pipeline import full_pipeline
-from src.database import database_connection, notifier, table_creation
+from core.pipeline import full_pipeline
+from leads.database import database_connection, table_creation
+from leads.notifier import notifier
 import streamlit as st
 import streamlit.components.v1 as components
+from config.logger import logger
 st.set_page_config(
     page_title="AI Dental Clinic Assistant Demo",
     page_icon="🦷",
@@ -380,219 +382,14 @@ if "pending_bot" not in st.session_state:
     st.session_state.pending_bot = False
 if "db_ready" not in st.session_state:
     try:
-        table_creation()
+        db_connection, cursor = database_connection()
+        table_creation(db_connection, cursor)
     except Exception:
-        pass
+        logger.exception("Database initialization failed")
+        st.error("The lead database could not be initialized.")
     st.session_state.db_ready = True
-BUYING_INTENT_PHRASES = [
-    # Appointment & Booking
-    "appointment",
-    "book appointment",
-    "schedule appointment",
-    "make an appointment",
-    "book a visit",
-    "schedule a visit",
-    "book consultation",
-    "consultation",
-    "dental consultation",
-    "new patient",
-    "accepting new patients",
-    "become a patient",
-    "register as a patient",
-    "book online",
-    "book now",
-    "schedule now",
-    "reserve an appointment",
-    "can i book",
-    "can i schedule",
-    "when is your next appointment",
-    "are you available",
-    "availability",
-    "same day appointment",
-    "today appointment",
-    "walk in",
-    "walk-in appointment",
-
-    # Finding a Dentist
-    "i need a dentist",
-    "looking for a dentist",
-    "find a dentist",
-    "looking for dental care",
-    "looking for dental treatment",
-    "need dental care",
-    "need dental treatment",
-    "need dental services",
-    "dentist near me",
-    "family dentist",
-    "cosmetic dentist",
-
-    # Tooth Pain & Symptoms
-    "toothache",
-    "tooth pain",
-    "my tooth hurts",
-    "aching tooth",
-    "pain in my tooth",
-    "pain while chewing",
-    "pain when biting",
-    "sensitive tooth",
-    "tooth sensitivity",
-    "cold sensitivity",
-    "hot sensitivity",
-    "swollen gums",
-    "bleeding gums",
-    "gum pain",
-    "gum infection",
-    "swollen face",
-    "jaw pain",
-    "mouth pain",
-    "bad breath",
-    "loose tooth",
-    "pus in gums",
-    "abscess",
-    "infection",
-
-    # Emergency
-    "emergency dentist",
-    "dental emergency",
-    "urgent dental care",
-    "urgent dentist",
-    "severe tooth pain",
-    "broken tooth",
-    "cracked tooth",
-    "chipped tooth",
-    "knocked out tooth",
-    "lost tooth",
-    "tooth fell out",
-    "broken crown",
-    "lost filling",
-    "broken filling",
-    "bleeding tooth",
-    "face swelling",
-
-    # Fillings
-    "cavity",
-    "tooth decay",
-    "need a filling",
-    "dental filling",
-    "fill cavity",
-
-    # Root Canal
-    "root canal",
-    "need root canal",
-    "root canal treatment",
-    "infected tooth",
-    "tooth nerve",
-
-    # Extraction
-    "tooth extraction",
-    "remove tooth",
-    "pull tooth",
-    "extract tooth",
-    "wisdom tooth",
-    "wisdom teeth",
-    "wisdom tooth removal",
-
-    # Implants
-    "dental implant",
-    "implant consultation",
-    "implant treatment",
-    "missing tooth",
-    "replace missing tooth",
-    "replace tooth",
-    "tooth replacement",
-
-    # Crowns & Bridges
-    "dental crown",
-    "tooth crown",
-    "crown came off",
-    "broken crown",
-    "bridge",
-    "dental bridge",
-
-    # Braces & Invisalign
-    "braces",
-    "need braces",
-    "invisalign",
-    "clear aligners",
-    "crooked teeth",
-    "straighten teeth",
-    "align teeth",
-    "orthodontics",
-    "bite problem",
-    "overbite",
-    "underbite",
-
-    # Cosmetic Dentistry
-    "veneers",
-    "teeth whitening",
-    "whitening",
-    "smile makeover",
-    "improve my smile",
-    "fix my smile",
-    "white teeth",
-    "stained teeth",
-    "yellow teeth",
-    "cosmetic dentistry",
-
-    # Cleaning & Gum Care
-    "dental cleaning",
-    "teeth cleaning",
-    "cleaning appointment",
-    "deep cleaning",
-    "scale and polish",
-    "gum treatment",
-    "periodontal treatment",
-
-    # Dentures
-    "dentures",
-    "partial dentures",
-    "full dentures",
-    "false teeth",
-
-    # Pediatric
-    "kids dentist",
-    "child dentist",
-    "children dentist",
-    "pediatric dentist",
-    "my child has tooth pain",
-
-    # Cost & Insurance
-    "how much does it cost",
-    "cost",
-    "price",
-    "fees",
-    "charges",
-    "treatment cost",
-    "pricing",
-    "estimate",
-    "quote",
-    "insurance",
-    "insurance accepted",
-    "do you take insurance",
-    "payment plan",
-    "financing",
-    "monthly payments",
-
-    # Contact & Next Steps
-    "contact me",
-    "call me",
-    "email me",
-    "how do i get started",
-    "how do i proceed",
-    "what's the next step",
-    "i'm interested",
-    "i'm interested in treatment",
-    "i'm interested in your services",
-    "recommend a treatment",
-    "what treatment do i need",
-    "which treatment is best",
-    "help with my teeth",
-    "fix my teeth"
-]
 FALLBACK_MARKER = "please leave your details below"
-def has_buying_intent(text: str) -> bool:
-    lower = text.lower()
-    return any(phrase in lower for phrase in BUYING_INTENT_PHRASES)
+
 # --------------------------------
 # Hero
 # --------------------------------
@@ -780,18 +577,19 @@ with center:
     if st.session_state.pending_bot:
         last_user = st.session_state.last_question
         try:
-            response = full_pipeline(
+            response, show_form = full_pipeline(
                 last_user,
                 st.session_state.messages,
             )
             if "[[LEAD_FORM]]" in response:
                 st.session_state.show_lead_form_now = True
                 response = response.replace("[[LEAD_FORM]]", "").strip()
-        except Exception as e:
-            st.error(e)
+        except Exception:
+            logger.exception("Frontend pipeline call failed")
             response = (
                 "I don't have that information right now."
             )
+            show_form = False
         st.session_state.messages.append(
             {
                 "type": "bot",
@@ -801,7 +599,7 @@ with center:
         st.session_state.pending_bot = False
         if (
             FALLBACK_MARKER in response.lower()
-            or has_buying_intent(last_user)
+            or show_form
         ):
             st.session_state.show_lead_form_now = True
         st.rerun()
