@@ -5,9 +5,7 @@ import os
 
 def database_connection():
     try:
-        if not setting.database_path.exists():
-            raise FileNotFoundError("Database Path is Not found")
-        os.makedirs(os.path.dirname(setting.database_path), exist_ok=True)
+        setting.database_path.parent.mkdir(parents=True, exist_ok=True)
         db_connection = sqlite3.connect(setting.database_path)
         cursor = db_connection.cursor()
         logger.info("Database Connection is Successfully Created")
