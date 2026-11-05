@@ -5,6 +5,7 @@ from config.logger import logger
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
+# Model and Client Creation
 try:
     model = HuggingFaceEmbeddings(
         model_name = setting.embedding_model,
@@ -37,7 +38,7 @@ except Exception as e:
     ) from e
 
 
-
+# validating retrieval result
 def retrieval_result_validation(results):
     if not isinstance(results,list) or not results:
         raise ValueError("Retrieval chunks are empty or have an invalid type")
@@ -72,11 +73,10 @@ def retrieval_result_validation(results):
                 "Similarity score must be a float"
             )
 
-
+# retrieve chunks
 def retrieve_chunks(query):
     try:
         collection_name = setting.qdrant_collection_name
-
         if not isinstance(query, str):
             raise TypeError("Query must be a string")
         if not query.strip():
@@ -105,7 +105,10 @@ def retrieve_chunks(query):
 
 
 
+
 if __name__ == "__main__":
 
     query = "What dental services you're offering?"
-    retrieve_chunks(query)
+    results = retrieve_chunks(query)
+    print(type(results))
+    print(results)
