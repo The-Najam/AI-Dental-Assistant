@@ -88,7 +88,9 @@ responses, and integration with real-world business workflows.
 | Email Service | Resend | Sends lead and fallback notifications to the dentist |
 
 ## AI Dental Clinic Assistant
-![AI Dental Clinic Assistant](assets/ai-dental-assistant.png)
+<p align="center">
+  <img src="assets/ai-dental-assistant.png" alt="AI Dental Clinic Assistant" width="700"/>
+</p>
 
 
 ### 1. Document Ingestion Pipeline
@@ -369,41 +371,43 @@ git clone <repository-url>
 cd Dental-Demo-Chatbot
 ```
 
-2. Create a Virtual Environment
+### 2. Create a Virtual Environment
 Windows (PowerShell):
-
+```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
+```
 
-3. Install Dependencies
+### 3. Install Dependencies
 
-bash
+```bash
 pip install -r requirements.txt
+```
 
-4. Configure Environment Variables
+### 4. Configure Environment Variables
 Create a .env file in the project root directory:
 
 env
 
-# Google Gemini
-GEMINI_API_KEY=your_gemini_api_key
+#### Google Gemini
+  - GEMINI_API_KEY=your_gemini_api_key
 
-# Qdrant Cloud
-QDRANT_URL=your_qdrant_url
-QDRANT_API_KEY=your_qdrant_api_key
-QDRANT_COLLECTION_NAME=dental_collection
+#### Qdrant Cloud
+  - QDRANT_URL=your_qdrant_url
+  - QDRANT_API_KEY=your_qdrant_api_key
+  - QDRANT_COLLECTION_NAME=dental_collection
 
-# Email Notifications
-CLIENT_EMAIL=dentist@example.com
-RESEND_API_KEY=your_resend_api_key
+#### Email Notifications
+  - CLIENT_EMAIL=dentist@example.com
+  - RESEND_API_KEY=your_resend_api_key
 
-# Optional Configuration
-EMBEDDING_MODEL=all-MiniLM-L6-v2
-GEMINI_MODEL=models/gemini-3.6-flash
-TOP_K=5
+#### Optional Configuration
+  - EMBEDDING_MODEL=all-MiniLM-L6-v2
+  - GEMINI_MODEL=models/gemini-3.6-flash
+  - TOP_K=5
 These settings are loaded through config/setting.py.
 
-5. Add Clinic Knowledge Documents
+### 5. Add Clinic Knowledge Documents
 Place your clinic knowledge-base documents inside the data/ directory.
 
 Supported format: .txt
@@ -426,29 +430,32 @@ Q: How much does teeth whitening cost?
 The cost of teeth whitening depends on the treatment plan.
 Contact the clinic for further details.
 
-6. Run Document Ingestion
+### 6. Run Document Ingestion
 Execute the ingestion pipeline:
-
+```powershell
 python -m injestion.run
+```
 
-This process:
+#### This process:
 
-Loads .txt documents from the configured data directory.
-Parses and splits documents using the custom question-based strategy.
-Generates embeddings using all-MiniLM-L6-v2.
-Stores document chunks and embeddings in Qdrant Cloud.
+- Loads .txt documents from the configured data directory.
+- Parses and splits documents using the custom question-based strategy.
+- Generates embeddings using all-MiniLM-L6-v2.
+- Stores document chunks and embeddings in Qdrant Cloud.
 
-Important:
+#### Important:
 
-Run ingestion once during initial setup.
-Re-run ingestion whenever clinic documents are updated.
-The existing Qdrant collection is deleted and recreated during ingestion.
-The Streamlit application does not automatically execute ingestion.
+- Run ingestion once during initial setup.
+- Re-run ingestion whenever clinic documents are updated.
+- The existing Qdrant collection is deleted and recreated during ingestion.
+- The Streamlit application does not automatically execute ingestion.
 
-7. Start the Application
+### 7. Start the Application
    
 Launch the Streamlit application:
+```powershell
 streamlit run app.py
+```
 
 Open the local URL displayed in your terminal.
 
@@ -462,8 +469,6 @@ data/demo.db
 
 You can now interact with the dental AI assistant through the web-based
 chat interface.
-
----
 
 ## Step 04 review
 
