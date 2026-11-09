@@ -310,6 +310,64 @@ without introducing a separate conversation-storage layer.
 | Lead Notification | Resend API |
 
 
+## Evaluation and Testing
+
+The project has been evaluated across retrieval quality, answer generation,
+and fallback behavior using the test scripts and evaluation reports in
+`tests/` and `evals/`.
+
+### Independent LLM Evaluation
+
+The independently evaluated generation report contains 14 test cases. Each
+response was assessed for faithfulness, correctness, relevance, and
+completeness.
+
+| Metric | Average Score |
+|---|---:|
+| Faithfulness | 0.982 |
+| Answer correctness | 0.875 |
+| Answer relevance | 0.839 |
+| Answer completeness | 0.821 |
+
+Overall results:
+
+- **PASS:** 10
+- **PARTIAL PASS:** 2
+- **FAIL:** 2
+
+The evaluation indicates strong grounding overall, while correctness,
+relevance, and completeness can still be improved for multi-part questions,
+pricing or insurance details, and answers requiring specific information.
+
+### Fallback Evaluation
+
+Fallback behavior was evaluated on 15 scenarios, including emergencies,
+unanswerable questions, ambiguous questions, and researcher or student
+queries.
+
+- **Fallback marker triggered:** 12 cases
+- **No fallback marker triggered:** 2 cases
+- **Incomplete or unclassified report row:** 1 case
+
+The fallback evaluation checks whether the assistant answers supported
+questions, asks for clarification when context is incomplete, and escalates
+questions that cannot be answered from the knowledge base. The results show
+that fallback behavior still needs improvement for ambiguous questions and
+some out-of-scope or educational queries.
+
+### Evaluation Artifacts
+
+- Retrieval test: `tests/retriever_test.py`
+- Retrieval report: `evals/evaluation_report/retrieve_result_evaluation_report.csv`
+- LLM generation report: `evals/evaluation_report/generation_evaluation_report.csv`
+- Fallback report: maintained as an evaluation report outside the repository
+
+These evaluations are offline checks against prepared datasets. They do not
+replace production monitoring, API failure testing, security testing, or
+large-scale performance testing.
+
+---
+
 
 ### Repository Structure
 
