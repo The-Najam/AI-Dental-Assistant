@@ -1,4 +1,4 @@
-# Dental-chatbot-demo
+# AI-Dental-Assistant
 AI Assistant which Capture Leads and Automate Patients Responses 24/7
 
 ## Problem Statement
