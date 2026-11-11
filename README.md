@@ -528,17 +528,6 @@ data/demo.db
 You can now interact with the dental AI assistant through the web-based
 chat interface.
 
-## Step 04 review
-
-A few implementation details are particularly important:
-
-- Ingestion and application startup are separate operations.
-- Updating clinic documents requires re-running ingestion.
-- Re-ingestion deletes and recreates the existing Qdrant collection, so it is a destructive replacement rather than incremental indexing.
-- SQLite initialization does not mean submitted leads are currently persisted.
-
-One recommendation: Add `.env`, `venv/`, and sensitive local files to `.gitignore` before publishing the repository.
-
 ---
 
 
